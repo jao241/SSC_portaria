@@ -1,0 +1,53 @@
+{
+    "pessoas": [
+        {
+            "id": 0,
+            "nome": "Caco Ciocler",
+            "foto": "BD/faces/Caco Ciocler.jpg",
+            "entrada_autorizada": false,
+            "residente": false
+        },
+        {
+            "id": 1,
+            "nome": "Debora Bloch",
+            "foto": "BD/faces/Debora Bloch.jpg",
+            "entrada_autorizada": true,
+            "residente": true
+        },
+        {
+            "id": 2,
+            "nome": "Emilio Zurita",
+            "foto": "BD/faces/Emilio Zurita.jpg",
+            "entrada_autorizada": false,
+            "residente": false
+        },
+        {
+            "id": 3,
+            "nome": "Luciano Huck",
+            "foto": "BD/faces/Luciano Huck.jpg",
+            "entrada_autorizada": true,
+            "residente": false
+        },
+        {
+            "id": 4,
+            "nome": "Luciano Szafir",
+            "foto": "BD/faces/Luciano Szafir.jpg",
+            "entrada_autorizada": false,
+            "residente": false
+        },
+        {
+            "id": 5,
+            "nome": "Marcos Mion",
+            "foto": "BD/faces/Marcos Mion.jpg",
+            "entrada_autorizada": true,
+            "residente": false
+        },
+        {
+            "id": 6,
+            "nome": "Mateus Solano",
+            "foto": "BD/faces/Mateus Solano.jpg",
+            "entrada_autorizada": false,
+            "residente": false
+        }
+    ]
+}
