@@ -54,69 +54,74 @@ def configurar_reconhecedor_face(env):
 
 def reconhecer_face(foto):
     global foto_original_criptografada
-    
-    e_igual = None
-    
+
+    e_igual = None    
     try:
         foto_selecionada = face_recognition.load_image_file(foto)
         foto_selecionada_criptografada = face_recognition.face_encodings(foto_selecionada)[0]
         
         e_igual = face_recognition.compare_faces([foto_original_criptografada], foto_selecionada_criptografada)
-        print(e_igual)
     except:
         pass
     
     return e_igual
 
-def verifica_na_lista():
+# Será um gerador de evento.
+def verifica_na_lista(env):
     global pessoa_reconhecida
     
-    for foto in LISTA_FOTOS:
-        if reconhecer_face(foto):
-            pessoa_reconhecida = True
-       
-def realizar_verificacao_entrada():
+    while True:
+        for foto in LISTA_FOTOS:
+            if reconhecer_face(foto):
+                pessoa_reconhecida = True
+                yield env.timeout(1)
+            else: 
+                print('Pessoa não reconhecida com base no banco de dados atual')
+
+# Será um gerador de evento.
+def realizar_verificacao_entrada(env):
     global foto_selecionada_aleatoriamente 
     global pessoa_reconhecida 
     global pessoa_dados 
     global lista_pessoas_condominio
     
-    if pessoa_reconhecida:
-        for pessoa in configuracao["pessoas"]:
-            if pessoa["foto"] == foto_selecionada_aleatoriamente:
-                pessoa_dados = pessoa
-        
-        print(f"\nDados da pessoa reconhecida: {pessoa_dados}!\n")
-        
-        if pessoa_dados["residente"] == True:
-            print(f"Bem vindo de volta, {pessoa_dados['nome']}\n")
-            lista_pessoas_condominio = pessoa_dados
-        else:
-            print("Você não é um residente do condomínio, verificando autorização de entrada!\n")
-
-            if pessoa_dados["entrada_autorizada"] == True:
-                print(f"Visitante {pessoa_dados['nome']} possui autorização, por favor entre!\n")
+    while True:
+        if pessoa_reconhecida:
+            for pessoa in configuracao["pessoas"]:
+                if pessoa["foto"] == foto_selecionada_aleatoriamente:
+                    pessoa_dados = pessoa
+            
+            print(f"\nDados da pessoa reconhecida: {pessoa_dados['nome']}!\n")
+            
+            if pessoa_dados["residente"] == True:
+                print(f"Bem vindo de volta, residente {pessoa_dados['nome']}\n")
                 lista_pessoas_condominio = pessoa_dados
             else:
-                print(f"Visitante {pessoa_dados['nome']} não possui autorização de entrada!\n")
-    else: 
-        print("Nenhum resultado semelhante encontrado")
+                print("Você não é um residente do condomínio, verificando autorização de entrada!\n")
+
+                if pessoa_dados["entrada_autorizada"] == True:
+                    print(f"Visitante {pessoa_dados['nome']} possui autorização, por favor entre!\n")
+                    lista_pessoas_condominio = pessoa_dados
+                else:
+                    print(f"Visitante {pessoa_dados['nome']} não possui autorização de entrada!\n")
+        else: 
+            print("Nenhum resultado semelhante encontrado")
+
+        yield env.timeout(1)
         
+def sair_condominio():
+    pass
+
 if __name__ == "__main__":
     env = simpy.Environment()
     
     configuracao_inicial()
 
-    # selecionar_pessoa()
     env.process(selecionar_pessoa(env))
     env.process(configurar_reconhecedor_face(env))
+    env.process(verifica_na_lista(env))
+    env.process(realizar_verificacao_entrada(env))
     env.run(until=10)
-    
-    # configurar_reconhecedor_face()
-    
-    # verifica_na_lista()
-    
-    # realizar_verificacao_entrada()
-    
+
 
                 
