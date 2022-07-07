@@ -17,6 +17,7 @@ LISTA_FOTOS = [
 ]
 
 TIMEOUT_INTERVALO = 1
+PROBABILIDADE_DE_SAIR = 4
 
 def configuracao_inicial():
     global configuracao
@@ -36,6 +37,7 @@ def selecionar_pessoa(env):
     while True:
         foto_selecionada_aleatoriamente = random.choice(LISTA_FOTOS)
         
+        print('==================================')
         print(f'Numero da simulação: {env.now}\n')
         print(f"foto selecionada: {foto_selecionada_aleatoriamente}")
         yield env.timeout(TIMEOUT_INTERVALO)
@@ -110,21 +112,39 @@ def realizar_verificacao_entrada(env):
             print("Nenhum resultado semelhante encontrado")
 
         yield env.timeout(TIMEOUT_INTERVALO)
-        
-def sair_condominio():
-    pass
+
+# Será um gerador de evento.    
+def sair_condominio(env):
+    global lista_pessoas_condominio
+    
+    while True:
+        alguem_vai_sair = random.randint(1, 10) <= PROBABILIDADE_DE_SAIR
+        if lista_pessoas_condominio:
+            if alguem_vai_sair:
+                pessoa_a_remover = random.choice(lista_pessoas_condominio)
+                lista_pessoas_condominio.remove(pessoa_a_remover)
+                print(f'{pessoa_a_remover["nome"]} saiu do condomínio.\n')
+
+
+        yield env.timeout(TIMEOUT_INTERVALO)
 
 if __name__ == "__main__":
     env = simpy.Environment()
     
     configuracao_inicial()
 
+    # ------------------------------------------------ 
+    # Processos relacionados ao reconhecimento de face
     env.process(selecionar_pessoa(env))
     env.process(configurar_reconhecedor_face(env))
     env.process(verifica_na_lista(env))
+    # ------------------------------------------------
+    # Processo relacionado a verificação da pessoa re-
+    # conhecida
     env.process(realizar_verificacao_entrada(env))
-    env.run(until=20)
-
-    print(f'Pessoas dentro do condomínio: {lista_pessoas_condominio}')
-
-                
+    # ------------------------------------------------
+    # Processo para simular a saida de uma pessoa do 
+    # condomínio
+    env.process(sair_condominio(env))
+    # ------------------------------------------------ 
+    env.run(until=100)   
